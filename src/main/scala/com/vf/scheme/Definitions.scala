@@ -33,6 +33,8 @@ case class FalseExpr() extends Expr
 
 case class IfExpr(condition: Expr, ift: Expr, iff: Expr) extends Expr
 
+case class DefExpr(name : String, body : Expr) extends Expr
+
 case class VarExpr(name: String) extends Expr
 
 case class PairExpr(a : Expr, d : Expr) extends Expr

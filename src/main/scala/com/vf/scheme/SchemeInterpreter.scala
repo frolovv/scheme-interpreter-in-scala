@@ -145,6 +145,12 @@ object Parser {
           }
           case _ => throw new Exception("Lambda's parameter list is malformed " + tokens)
         }
+
+      case Lparen() :: SymbolToken("define") :: rest =>
+        extractExprsAndRest(rest) match {
+          case (List(VarExpr(name), value), Rparen() :: rest2) => (DefExpr(name, value), rest2)
+          case _ => throw new Exception("wrong syntax after define " + tokens)
+        }
       case Lparen() :: rest =>
         extractExprsAndRest(rest) match {
           case (operator :: operands, Rparen() :: rest2) => (AppExpr(operator, operands), rest2)
@@ -258,6 +264,8 @@ object Interpreter {
     })
   }
 
+  val defined_GE = new scala.collection.mutable.HashMap[String, Result]
+
   def eval(line: String): Result = {
     val tokens = Scanner.scan(line)
     val expr = Parser.parse(tokens)
@@ -276,7 +284,10 @@ object Interpreter {
         case "boolean?" => NativeClosure(this.is_boolean)
         case "pair?" => NativeClosure(this.is_pair)
         case "list" => NativeClosure(this.list)
-        case _ => throw new Exception("Param not found")
+        case _ => defined_GE(x) match {
+          case result: Result => result
+          case _ => throw new Exception("Error: unbound symbol: " + x)
+        }
       }
     }
     eval(expr, GE)
@@ -292,6 +303,10 @@ object Interpreter {
     }
   }
 
+  def updateGE(name: String, value: Result): Unit = {
+    this.defined_GE += name -> value
+  }
+
   def eval(expr: Expr, env: String => Result): Result = {
     expr match {
       case NumExpr(x) => IntResult(x)
@@ -301,6 +316,10 @@ object Interpreter {
       case NilExpr() => NilResult()
       case SymbolExpr(x) => SymbolResult(x)
       case StringExpr(x) => StringResult(x)
+      case DefExpr(name, value) => {
+        updateGE(name, eval(value, env))
+        VoidResult()
+      }
       case VarExpr(name) => env(name)
       case PairExpr(a, d) => PairResult(eval(a, env), eval(d, env))
       case Lambda(params, body) => Closure(params, body, env)
@@ -366,8 +385,11 @@ object REPL {
         case _ => {
           try {
             val res = Interpreter.eval(line)
-            println("> " + format(res))
-            print("> ")
+            res match {
+              case VoidResult() => print("> ")
+              case _ => println(" " + format(res)); print("> ")
+            }
+
           }
           catch {
             case e: Exception => {

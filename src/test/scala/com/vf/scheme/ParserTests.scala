@@ -17,6 +17,11 @@ class ParserTests {
     ("(lambda (x) x)", Lambda(List("x"), VarExpr("x")))
   )
 
+  val DefSamples = List(
+    ("(define x 1)", DefExpr("x", NumExpr(1))),
+    ("(define x y)", DefExpr("x", VarExpr("y")))
+  )
+
   val QuoteSamples = List(
     ("'(1)", PairExpr(NumExpr(1), NilExpr())),
     ("'1", NumExpr(1)),
@@ -37,5 +42,6 @@ class ParserTests {
     testSamples(AppSamples)
     testSamples(LambdaSamples)
     testSamples(QuoteSamples)
+    testSamples(DefSamples)
   }
 }
