@@ -20,7 +20,8 @@ class InterpreterTests {
     ("(min 1 2 3 4 5 6)", IntResult(1)),
     ("(max 1 2 3 4 5 6)", IntResult(6)),
     ("(integer? 1)", BoolResult(value = true)),
-    ("(boolean? (integer? 123))", BoolResult(value = true))
+    ("(boolean? (integer? 123))", BoolResult(value = true)),
+    ("(list 1 2)", PairResult(IntResult(1), PairResult(IntResult(2), NilResult())))
   )
 
   val IfSamples = List(
