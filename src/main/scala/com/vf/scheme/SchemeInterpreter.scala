@@ -36,7 +36,7 @@ object Scanner {
   }
 
   def valid4symbol(char: Char): Boolean = {
-    Character.isLetterOrDigit(char) || "*/+-".contains(char)
+    Character.isLetterOrDigit(char) || "*/+-?!".contains(char)
   }
 
   def stateNumber(chars: List[Char], partials: List[Char]): List[Token] = {
@@ -56,7 +56,7 @@ object Scanner {
     }
   }
 
-  def stateString(chars: List[Char], partials : List[Char]): List[Token] = {
+  def stateString(chars: List[Char], partials: List[Char]): List[Token] = {
     chars match {
       case '"' :: rest => StringToken(partials.reverse.mkString("")) :: stateInit(rest)
       case char :: rest => stateString(rest, char :: partials)
@@ -121,7 +121,7 @@ object Parser {
       case Lparen() :: rest =>
         extractExprsAndRest(rest) match {
           case (operator :: operands, Rparen() :: rest2) => (AppExpr(operator, operands), rest2)
-          case _=> throw new Exception("missing right paren " + tokens)
+          case _ => throw new Exception("missing right paren " + tokens)
         }
       case _ => throw new Exception("Could not extract expr and rest from " + tokens)
     }
@@ -142,39 +142,49 @@ object Parser {
 
 object Interpreter {
 
-  def string_length(args : List[Result]) = {
-     args match {
-       case StringResult(x) :: Nil=> IntResult(x.length)
-       case _ => throw new IllegalArgumentException("string-length expects string argument, got " + args)
-     }
+  def is_string(args: List[Result]) = {
+    args match {
+      case StringResult(x) :: Nil => BoolResult(value = true)
+      case Nil => throw new IllegalArgumentException("Error: string?: wrong number of arguments (expected: 1 got: 0)")
+      case _ => BoolResult(value = false)
+    }
   }
 
-  def plus(args : List[Result]) = {
+  def string_length(args: List[Result]) = {
+    args match {
+      case StringResult(x) :: Nil => IntResult(x.length)
+      case _ => throw new IllegalArgumentException("Error: string-length: string required, but got " + args)
+    }
+  }
+
+  def plus(args: List[Result]) = {
     val ints = getIntsFrom(args)
     val res = ints reduce (_ + _)
     IntResult(res)
   }
 
-  def minus(args : List[Result]) = {
+  def minus(args: List[Result]) = {
     val ints = getIntsFrom(args)
     val res = ints reduce (_ - _)
     IntResult(res)
   }
 
-  def div(args : List[Result]) = {
+  def div(args: List[Result]) = {
     val ints = getIntsFrom(args)
     val res = ints reduce (_ / _)
     IntResult(res)
   }
 
-  def mult(args : List[Result]) = {
+  def mult(args: List[Result]) = {
     val ints = getIntsFrom(args)
     val res = ints reduce (_ * _)
     IntResult(res)
   }
 
-  def getIntsFrom(args : List[Result]) : List[Int] = {
-    args.map(res => res match {case IntResult(x) => x})
+  def getIntsFrom(args: List[Result]): List[Int] = {
+    args.map(res => res match {
+      case IntResult(x) => x
+    })
   }
 
   def eval(line: String): Result = {
@@ -188,6 +198,7 @@ object Interpreter {
         case "/" => NativeClosure(this.div)
         case "*" => NativeClosure(this.mult)
         case "string-length" => NativeClosure(this.string_length)
+        case "string?" => NativeClosure(this.is_string)
         case _ => throw new Exception("Param not found")
       }
     }
@@ -238,8 +249,8 @@ object Interpreter {
 }
 
 object REPL {
-  def format(result : Result) : String = {
-    result match{
+  def format(result: Result): String = {
+    result match {
       case IntResult(x) => x + " : int"
       case BoolResult(b) => (if (b) "#t" else "#f") + " : boolean"
       case Closure(params, body, env) => "<closure>"
@@ -275,6 +286,6 @@ object REPL {
     }
   }
 
-  def main(args: Array[String]) = {REPL.repl()}
+  def main(args: Array[String]): Unit = REPL.repl()
 }
 

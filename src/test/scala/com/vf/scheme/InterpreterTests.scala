@@ -14,7 +14,9 @@ class InterpreterTests {
 
   val PrimitiveSamples = List(
     ("(+ 1 2 3)", IntResult(6)),
-    ("(string-length \"abc\")", IntResult(3))
+    ("(string-length \"abc\")", IntResult(3)),
+    ("(string? 123)", BoolResult(value = false)),
+    ("(string? \"abc\")", BoolResult(value = true))
   )
 
   val IfSamples = List(
