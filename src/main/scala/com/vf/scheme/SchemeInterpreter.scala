@@ -142,6 +142,13 @@ object Parser {
 
 object Interpreter {
 
+  def string_length(args : List[Result]) = {
+     args match {
+       case StringResult(x) :: Nil=> IntResult(x.length)
+       case _ => throw new IllegalArgumentException("string-length expects string argument, got " + args)
+     }
+  }
+
   def plus(args : List[Result]) = {
     val ints = getIntsFrom(args)
     val res = ints reduce (_ + _)
@@ -176,10 +183,11 @@ object Interpreter {
 
     val GE = (x: String) => {
       x match {
-        case "+" => NativeClosure(plus)
-        case "-" => NativeClosure(minus)
-        case "/" => NativeClosure(div)
-        case "*" => NativeClosure(mult)
+        case "+" => NativeClosure(this.plus)
+        case "-" => NativeClosure(this.minus)
+        case "/" => NativeClosure(this.div)
+        case "*" => NativeClosure(this.mult)
+        case "string-length" => NativeClosure(this.string_length)
         case _ => throw new Exception("Param not found")
       }
     }

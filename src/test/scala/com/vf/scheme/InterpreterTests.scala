@@ -13,7 +13,8 @@ class InterpreterTests {
   )
 
   val PrimitiveSamples = List(
-    ("(+ 1 2 3)", IntResult(6))
+    ("(+ 1 2 3)", IntResult(6)),
+    ("(string-length \"abc\")", IntResult(3))
   )
 
   val IfSamples = List(
