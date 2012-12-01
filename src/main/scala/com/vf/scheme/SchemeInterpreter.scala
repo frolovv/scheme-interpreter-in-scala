@@ -150,7 +150,7 @@ object Parser {
           case (operator :: operands, Rparen() :: rest2) => (AppExpr(operator, operands), rest2)
           case _ => throw new Exception("missing right paren " + tokens)
         }
-      case _ => throw new Exception("Could not extract expr and rest from " + tokens)
+      case _ => throw new Exception("Could not extract expr and rest from " + tokens + ", probably due to missing right paren")
     }
   }
 
@@ -168,6 +168,14 @@ object Parser {
 }
 
 object Interpreter {
+
+  def is_pair(args: List[Result]) = {
+    args match {
+      case PairResult(a, d) :: Nil => BoolResult(value = true)
+      case Nil => throw new IllegalArgumentException("Error: pair?: wrong number of arguments (expected: 1 got: 0)")
+      case _ => BoolResult(value = false)
+    }
+  }
 
   def is_string(args: List[Result]) = {
     args match {
@@ -266,6 +274,7 @@ object Interpreter {
         case "string?" => NativeClosure(this.is_string)
         case "integer?" => NativeClosure(this.is_integer)
         case "boolean?" => NativeClosure(this.is_boolean)
+        case "pair?" => NativeClosure(this.is_pair)
         case "list" => NativeClosure(this.list)
         case _ => throw new Exception("Param not found")
       }
