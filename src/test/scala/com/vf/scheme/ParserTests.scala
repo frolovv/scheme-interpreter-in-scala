@@ -1,6 +1,7 @@
 package com.vf.scheme
 
 import org.junit.Test
+import org.hamcrest.Matchers
 
 class ParserTests {
   val ifSamples = List(
@@ -16,10 +17,17 @@ class ParserTests {
     ("(lambda (x) x)", Lambda(List("x"), VarExpr("x")))
   )
 
+  val QuoteSamples = List(
+    ("'(1)", PairExpr(NumExpr(1), NilExpr())),
+    ("'1", NumExpr(1)),
+    ("'abc", SymbolExpr("abc")),
+    ("'(1 . 2)", PairExpr(NumExpr(1), NumExpr(2)))
+  )
+
   def testSamples(samples: List[(String, Expr)]) {
     for ((input, expected) <- samples) {
       val actual = Parser.parse(input)
-      assert(actual.equals(expected))
+      org.hamcrest.MatcherAssert.assertThat(actual, Matchers.is(expected))
     }
   }
 
@@ -28,5 +36,6 @@ class ParserTests {
     testSamples(ifSamples)
     testSamples(AppSamples)
     testSamples(LambdaSamples)
+    testSamples(QuoteSamples)
   }
 }

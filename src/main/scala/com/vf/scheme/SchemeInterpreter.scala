@@ -86,6 +86,7 @@ object Parser {
   def extractExprsAndRest(tokens: List[Token]): (List[Expr], List[Token]) = {
     extractExprAndRest(tokens) match {
       case (value: Expr, Rparen() :: rest) => (List(value), Rparen() :: rest)
+      case (value: Expr, DotToken() :: rest) => (List(value), DotToken() :: rest)
       case (value: Expr, rest) => extractExprsAndRest(rest) match {
         case (values: List[Expr], rest2) => (value :: values, rest2)
         case (_, rest3) => throw new Exception("Could not extract exprs and rest from " + tokens)
@@ -97,6 +98,17 @@ object Parser {
     exprs.map(e => e.asInstanceOf[VarExpr].name)
   }
 
+  def convertToPairs(exprs: List[Expr]): Expr = {
+    convertToPairs(exprs, NilExpr())
+  }
+
+  def convertToPairs(exprs: List[Expr], expr: Expr): Expr = {
+    exprs match {
+      case Nil => expr
+      case head :: tail => PairExpr(head, convertToPairs(tail, expr))
+    }
+  }
+
   def extractExprAndRest(tokens: List[Token]): (Expr, List[Token]) = {
     tokens match {
       case NumToken(x) :: rest => (NumExpr(x), rest)
@@ -104,6 +116,19 @@ object Parser {
       case BoolToken('f') :: rest => (FalseExpr(), rest)
       case SymbolToken(x) :: rest => (VarExpr(x), rest)
       case StringToken(x) :: rest => (StringExpr(x), rest)
+      case QuoteToken() :: Lparen() :: rest =>
+        extractExprsAndRest(rest) match {
+          case (exprs, Rparen() :: rest2) => (convertToPairs(exprs), rest2)
+          case (exprs, DotToken() :: rest2) => extractExprAndRest(rest2) match {
+            case (expr, Rparen() :: rest3) => (convertToPairs(exprs, expr), rest3)
+            case _ => throw new Exception("Can't find expr after a dot token  in " + tokens)
+          }
+          case _ => throw new Exception("Unclosed list after quote in " + tokens)
+        }
+      case QuoteToken() :: rest => extractExprAndRest(rest) match {
+        case (VarExpr(x), rest2) => (SymbolExpr(x), rest2)
+        case (expr: Expr, rest2) => (expr, rest2)
+      }
 
       case Lparen() :: SymbolToken("if") :: rest =>
         extractExprsAndRest(rest) match {
