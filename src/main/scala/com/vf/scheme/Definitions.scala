@@ -15,6 +15,7 @@ case class Closure(params: List[String], body: Expr, env: String => Result) exte
 sealed abstract class Expr
 
 case class NumExpr(value: Int) extends Expr
+case class StringExpr(value : String) extends Expr
 
 case class VoidExpr() extends Expr
 
