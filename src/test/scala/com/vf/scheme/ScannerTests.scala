@@ -1,6 +1,7 @@
 package com.vf.scheme
 
 import org.junit.Test
+import org.hamcrest.Matchers
 
 
 class ScannerTests {
@@ -21,11 +22,15 @@ class ScannerTests {
     ("()", List(Lparen(), Rparen()))
   )
 
+  val StringSamples = List(
+    ("\"abc\"", List(StringToken("abc")))
+  )
+
 
   def testSamples(samples: List[(String, List[Token])]) {
     for ((input, expected) <- samples) {
       val actual = Scanner.scan(input)
-      assert(actual.equals(expected))
+      org.hamcrest.MatcherAssert.assertThat(expected, Matchers.is(actual))
     }
   }
 
@@ -35,5 +40,6 @@ class ScannerTests {
     testSamples(BooleanSamples)
     testSamples(SymbolSamples)
     testSamples(ParenSamples)
+    testSamples(StringSamples)
   }
 }
