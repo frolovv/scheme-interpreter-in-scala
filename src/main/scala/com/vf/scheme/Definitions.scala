@@ -51,3 +51,7 @@ case class StringToken(value : String) extends Token
 case class Rparen() extends Token
 
 case class Lparen() extends Token
+
+case class DotToken() extends Token
+
+case class QuoteToken() extends Token
