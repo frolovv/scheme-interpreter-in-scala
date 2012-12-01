@@ -9,7 +9,10 @@ class InterpreterTests {
   val ConstSamples = List(
     ("123", IntResult(123)),
     ("#t", BoolResult(value = true)),
-    ("\"abc\"", StringResult("abc"))
+    ("\"abc\"", StringResult("abc")),
+    ("'123", IntResult(123)),
+    ("'abc", SymbolResult("abc")),
+    ("'(1 . 2)", PairResult(IntResult(1), IntResult(2)))
   )
 
   val PrimitiveSamples = List(
