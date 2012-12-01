@@ -72,6 +72,8 @@ object Scanner {
       case ')' :: rest => Rparen() :: stateInit(rest)
       case ' ' :: rest => stateInit(rest)
       case '#' :: rest => stateHash(rest)
+      case '\'' :: rest => QuoteToken() :: stateInit(rest)
+      case '.' :: rest => DotToken() :: stateInit(rest)
       case '"' :: rest => stateString(rest, List())
       case char :: rest if valid4symbol(char) => stateNumber(chars, List())
       case char :: rest => throw new Exception("Uknown char in stateInit [" + char + "], rest is " + rest)
