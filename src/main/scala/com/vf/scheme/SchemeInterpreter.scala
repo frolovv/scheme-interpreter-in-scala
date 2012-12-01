@@ -219,6 +219,7 @@ object Interpreter {
   def getIntsFrom(args: List[Result]): List[Int] = {
     args.map(res => res match {
       case IntResult(x) => x
+      case _ => throw new IllegalArgumentException("Error : expected list of integers, got " + args)
     })
   }
 
@@ -295,7 +296,7 @@ object REPL {
       case PairResult(a, NilResult()) => "(" + ((a :: items) map format).reverse.mkString(" ") + ")"
       case PairResult(a, d) => makeList(d, (a :: items))
       case NilResult() => "(" + (items map format).mkString(" ") + ")"
-      case _ : Result => "(" + (items map format).reverse.mkString(" ") + " . " + (format _) + ")"
+      case _: Result => "(" + (items map format).reverse.mkString(" ") + " . " + (format _) + ")"
     }
   }
 
