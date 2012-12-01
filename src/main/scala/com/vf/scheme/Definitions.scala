@@ -39,6 +39,8 @@ case class BoolToken(value: Char) extends Token
 
 case class SymbolToken(value: String) extends Token
 
+case class StringToken(value : String) extends Token
+
 case class Rparen() extends Token
 
 case class Lparen() extends Token
