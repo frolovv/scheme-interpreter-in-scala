@@ -150,7 +150,14 @@ object Interpreter {
     }
   }
 
-  def is_boolean(args : List[Result]) = {
+  def list(args: List[Result]): Result = {
+    args match {
+      case Nil => NilResult()
+      case head :: tail => PairResult(head, list(tail))
+    }
+  }
+
+  def is_boolean(args: List[Result]) = {
     args match {
       case BoolResult(x) :: Nil => BoolResult(value = true)
       case Nil => throw new IllegalArgumentException("Error: boolean?: wrong number of arguments (expected: 1 got: 0)")
@@ -158,7 +165,7 @@ object Interpreter {
     }
   }
 
-  def is_integer(args : List[Result]) = {
+  def is_integer(args: List[Result]) = {
     args match {
       case IntResult(x) :: Nil => BoolResult(value = true)
       case Nil => throw new IllegalArgumentException("Error: integer?: wrong number of arguments (expected: 1 got: 0)")
@@ -231,6 +238,7 @@ object Interpreter {
         case "string?" => NativeClosure(this.is_string)
         case "integer?" => NativeClosure(this.is_integer)
         case "boolean?" => NativeClosure(this.is_boolean)
+        case "list" => NativeClosure(this.list)
         case _ => throw new Exception("Param not found")
       }
     }
@@ -281,13 +289,26 @@ object Interpreter {
 }
 
 object REPL {
+
+  def makeList(list: Result, items: List[Result]): String = {
+    list match {
+      case PairResult(a, NilResult()) => "(" + ((a :: items) map format).reverse.mkString(" ") + ")"
+      case PairResult(a, d) => makeList(d, (a :: items))
+      case NilResult() => "(" + (items map format).mkString(" ") + ")"
+      case _ : Result => "(" + (items map format).reverse.mkString(" ") + " . " + (format _) + ")"
+    }
+  }
+
   def format(result: Result): String = {
     result match {
-      case IntResult(x) => x + " : int"
-      case BoolResult(b) => (if (b) "#t" else "#f") + " : boolean"
+      case IntResult(x) => x.toString
+      case BoolResult(b) => (if (b) "#t" else "#f")
       case Closure(params, body, env) => "<closure>"
       case NativeClosure(_) => "<native closure>"
       case VoidResult() => ""
+      case PairResult(a, d) => makeList(d, List(a))
+      case NilResult() => "()"
+      case StringResult(x) => "\"" + x + "\""
       case _ => ""
     }
   }
