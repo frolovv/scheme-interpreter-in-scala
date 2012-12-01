@@ -202,6 +202,7 @@ object Interpreter {
       case TrueExpr() => BoolResult(value = true)
       case FalseExpr() => BoolResult(value = false)
       case VoidExpr() => VoidResult()
+      case StringExpr(x) => StringResult(x)
       case VarExpr(name) => env(name)
       case Lambda(params, body) => Closure(params, body, env)
       case AppExpr(oper, args) => {

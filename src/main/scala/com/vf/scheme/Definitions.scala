@@ -6,6 +6,8 @@ case class IntResult(value: Int) extends Result
 
 case class BoolResult(value: Boolean) extends Result
 
+case class StringResult(value : String) extends Result
+
 case class VoidResult() extends Result
 
 case class NativeClosure(body: (List[Result]) => Result) extends Result

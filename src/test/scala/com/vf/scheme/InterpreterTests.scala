@@ -5,11 +5,11 @@ import org.hamcrest.Matchers
 import org.hamcrest.MatcherAssert.assertThat
 
 
-
 class InterpreterTests {
   val ConstSamples = List(
     ("123", IntResult(123)),
-    ("#t", BoolResult(value = true))
+    ("#t", BoolResult(value = true)),
+    ("\"abc\"", StringResult("abc"))
   )
 
   val PrimitiveSamples = List(
