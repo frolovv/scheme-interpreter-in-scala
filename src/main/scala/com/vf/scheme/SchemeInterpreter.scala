@@ -150,6 +150,22 @@ object Interpreter {
     }
   }
 
+  def is_boolean(args : List[Result]) = {
+    args match {
+      case BoolResult(x) :: Nil => BoolResult(value = true)
+      case Nil => throw new IllegalArgumentException("Error: boolean?: wrong number of arguments (expected: 1 got: 0)")
+      case _ => BoolResult(value = false)
+    }
+  }
+
+  def is_integer(args : List[Result]) = {
+    args match {
+      case IntResult(x) :: Nil => BoolResult(value = true)
+      case Nil => throw new IllegalArgumentException("Error: integer?: wrong number of arguments (expected: 1 got: 0)")
+      case _ => BoolResult(value = false)
+    }
+  }
+
   def string_length(args: List[Result]) = {
     args match {
       case StringResult(x) :: Nil => IntResult(x.length)
@@ -213,6 +229,8 @@ object Interpreter {
         case "max" => NativeClosure(this.max)
         case "string-length" => NativeClosure(this.string_length)
         case "string?" => NativeClosure(this.is_string)
+        case "integer?" => NativeClosure(this.is_integer)
+        case "boolean?" => NativeClosure(this.is_boolean)
         case _ => throw new Exception("Param not found")
       }
     }
