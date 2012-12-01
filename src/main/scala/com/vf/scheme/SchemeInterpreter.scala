@@ -56,6 +56,14 @@ object Scanner {
     }
   }
 
+  def stateString(chars: List[Char], partials : List[Char]): List[Token] = {
+    chars match {
+      case '"' :: rest => StringToken(partials.mkString("")) :: stateInit(rest)
+      case char :: rest => stateString(rest, char :: partials)
+      case _ => throw new Exception("Uknown char in stateString " + chars)
+    }
+  }
+
   def stateInit(chars: List[Char]): List[Token] = {
 
     chars match {
@@ -64,6 +72,7 @@ object Scanner {
       case ')' :: rest => Rparen() :: stateInit(rest)
       case ' ' :: rest => stateInit(rest)
       case '#' :: rest => stateHash(rest)
+      case '"' :: rest => stateString(rest, List())
       case char :: rest if valid4symbol(char) => stateNumber(chars, List())
       case char :: rest => throw new Exception("Uknown char in stateInit [" + char + "], rest is " + rest)
     }
