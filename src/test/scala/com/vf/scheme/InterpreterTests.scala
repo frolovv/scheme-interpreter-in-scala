@@ -26,7 +26,9 @@ class InterpreterTests {
     ("(boolean? (integer? 123))", BoolResult(value = true)),
     ("(list 1 2)", PairResult(IntResult(1), PairResult(IntResult(2), NilResult()))),
     ("(pair? '(1 . 2))", BoolResult(value = true)),
-    ("(pair? (list 1 2))", BoolResult(value = true))
+    ("(pair? (list 1 2))", BoolResult(value = true)),
+    ("(zero? 0)", BoolResult(value = true)),
+    ("(zero? '123)", BoolResult(value = false))
   )
 
   val IfSamples = List(

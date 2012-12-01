@@ -257,6 +257,16 @@ object Interpreter {
     IntResult(res)
   }
 
+  def is_zero(args: List[Result]) = {
+    args match {
+      case IntResult(0) :: Nil => BoolResult(value = true)
+      case IntResult(x) :: Nil => BoolResult(value = false)
+      case IntResult(x) :: tail => throw new IllegalArgumentException("Error: zero?: wrong number of arguments (expected: 1 got: " + args)
+      case Nil => throw new IllegalArgumentException("Error: zero?: wrong number of arguments (expected: 1 got: 0)")
+      case _ => throw new IllegalArgumentException("Error: zero?: wrong type of arguments (expected: integer got: " + args)
+    }
+  }
+
   def getIntsFrom(args: List[Result]): List[Int] = {
     args.map(res => res match {
       case IntResult(x) => x
@@ -284,6 +294,7 @@ object Interpreter {
         case "boolean?" => NativeClosure(this.is_boolean)
         case "pair?" => NativeClosure(this.is_pair)
         case "list" => NativeClosure(this.list)
+        case "zero?" => NativeClosure(this.is_zero)
         case _ => defined_GE(x) match {
           case result: Result => result
           case _ => throw new Exception("Error: unbound symbol: " + x)
