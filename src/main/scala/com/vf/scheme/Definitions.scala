@@ -8,6 +8,8 @@ case class BoolResult(value: Boolean) extends Result
 
 case class StringResult(value : String) extends Result
 
+case class SymbolResult(value : String) extends Result
+
 case class VoidResult() extends Result
 
 case class PairResult(car : Result, cdr : Result) extends Result
