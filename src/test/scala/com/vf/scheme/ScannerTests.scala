@@ -26,6 +26,14 @@ class ScannerTests {
     ("\"abc\"", List(StringToken("abc")))
   )
 
+  val DotSamples = List(
+    (".", List(DotToken()))
+  )
+
+  val QuoteSamples = List(
+    ("'", List(QuoteToken()))
+  )
+
 
   def testSamples(samples: List[(String, List[Token])]) {
     for ((input, expected) <- samples) {
@@ -41,5 +49,7 @@ class ScannerTests {
     testSamples(SymbolSamples)
     testSamples(ParenSamples)
     testSamples(StringSamples)
+    testSamples(DotSamples)
+    testSamples(QuoteSamples)
   }
 }
