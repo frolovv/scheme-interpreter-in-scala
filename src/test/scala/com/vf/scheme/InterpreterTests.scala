@@ -16,7 +16,9 @@ class InterpreterTests {
     ("(+ 1 2 3)", IntResult(6)),
     ("(string-length \"abc\")", IntResult(3)),
     ("(string? 123)", BoolResult(value = false)),
-    ("(string? \"abc\")", BoolResult(value = true))
+    ("(string? \"abc\")", BoolResult(value = true)),
+    ("(min 1 2 3 4 5 6)", IntResult(1)),
+    ("(max 1 2 3 4 5 6)", IntResult(6))
   )
 
   val IfSamples = List(

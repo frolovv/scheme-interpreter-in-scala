@@ -157,6 +157,18 @@ object Interpreter {
     }
   }
 
+  def min(args: List[Result]) = {
+    val ints = getIntsFrom(args)
+    val res = ints.min
+    IntResult(res)
+  }
+
+  def max(args: List[Result]) = {
+    val ints = getIntsFrom(args)
+    val res = ints.max
+    IntResult(res)
+  }
+
   def plus(args: List[Result]) = {
     val ints = getIntsFrom(args)
     val res = ints reduce (_ + _)
@@ -197,6 +209,8 @@ object Interpreter {
         case "-" => NativeClosure(this.minus)
         case "/" => NativeClosure(this.div)
         case "*" => NativeClosure(this.mult)
+        case "min" => NativeClosure(this.min)
+        case "max" => NativeClosure(this.max)
         case "string-length" => NativeClosure(this.string_length)
         case "string?" => NativeClosure(this.is_string)
         case _ => throw new Exception("Param not found")
