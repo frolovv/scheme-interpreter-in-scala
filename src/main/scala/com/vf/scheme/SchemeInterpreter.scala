@@ -58,7 +58,7 @@ object Scanner {
 
   def stateString(chars: List[Char], partials : List[Char]): List[Token] = {
     chars match {
-      case '"' :: rest => StringToken(partials.mkString("")) :: stateInit(rest)
+      case '"' :: rest => StringToken(partials.reverse.mkString("")) :: stateInit(rest)
       case char :: rest => stateString(rest, char :: partials)
       case _ => throw new Exception("Uknown char in stateString " + chars)
     }
