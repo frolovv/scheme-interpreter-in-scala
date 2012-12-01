@@ -10,6 +10,10 @@ case class StringResult(value : String) extends Result
 
 case class VoidResult() extends Result
 
+case class PairResult(car : Result, cdr : Result) extends Result
+
+case class NilResult() extends Result
+
 case class NativeClosure(body: (List[Result]) => Result) extends Result
 
 case class Closure(params: List[String], body: Expr, env: String => Result) extends Result
