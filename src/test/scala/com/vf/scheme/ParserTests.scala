@@ -5,7 +5,8 @@ import org.junit.Test
 class ParserTests {
   val ifSamples = List(
     ("(if 1 2 3)", IfExpr(NumExpr(1), NumExpr(2), NumExpr(3))),
-    ("(if #t #f)", IfExpr(TrueExpr(), FalseExpr(), VoidExpr()))
+    ("(if #t #f)", IfExpr(TrueExpr(), FalseExpr(), VoidExpr())),
+    ("(if \"abc\" \"abc\" \"def\")", IfExpr(StringExpr("abc"), StringExpr("abc"), StringExpr("def")))
   )
 
   val AppSamples = List(
