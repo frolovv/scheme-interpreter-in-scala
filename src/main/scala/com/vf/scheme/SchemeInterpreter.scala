@@ -101,6 +101,7 @@ object Parser {
       case BoolToken('t') :: rest => (TrueExpr(), rest)
       case BoolToken('f') :: rest => (FalseExpr(), rest)
       case SymbolToken(x) :: rest => (VarExpr(x), rest)
+      case StringToken(x) :: rest => (StringExpr(x), rest)
 
       case Lparen() :: SymbolToken("if") :: rest =>
         extractExprsAndRest(rest) match {
