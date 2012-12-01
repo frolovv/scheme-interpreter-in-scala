@@ -289,8 +289,11 @@ object Interpreter {
       case TrueExpr() => BoolResult(value = true)
       case FalseExpr() => BoolResult(value = false)
       case VoidExpr() => VoidResult()
+      case NilExpr() => NilResult()
+      case SymbolExpr(x) => SymbolResult(x)
       case StringExpr(x) => StringResult(x)
       case VarExpr(name) => env(name)
+      case PairExpr(a, d) => PairResult(eval(a, env), eval(d, env))
       case Lambda(params, body) => Closure(params, body, env)
       case AppExpr(oper, args) => {
         eval(oper, env) match {
@@ -331,6 +334,7 @@ object REPL {
     result match {
       case IntResult(x) => x.toString
       case BoolResult(b) => (if (b) "#t" else "#f")
+      case SymbolResult(x) => x
       case Closure(params, body, env) => "<closure>"
       case NativeClosure(_) => "<native closure>"
       case VoidResult() => ""
