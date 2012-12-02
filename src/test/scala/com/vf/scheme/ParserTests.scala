@@ -29,6 +29,11 @@ class ParserTests {
     ("'(1 . 2)", PairExpr(NumExpr(1), NumExpr(2)))
   )
 
+  val BeginSamples = List(
+    ("(begin 1 2)", SeqExpr(List(NumExpr(1), NumExpr(2)))),
+    ("1 2", SeqExpr(List(NumExpr(1), NumExpr(2))))
+  )
+
   def testSamples(samples: List[(String, Expr)]) {
     for ((input, expected) <- samples) {
       val actual = Parser.parse(input)
@@ -43,5 +48,6 @@ class ParserTests {
     testSamples(LambdaSamples)
     testSamples(QuoteSamples)
     testSamples(DefSamples)
+    testSamples(BeginSamples)
   }
 }
