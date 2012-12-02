@@ -84,12 +84,15 @@ object Scanner {
 object Parser {
 
   def extractExprsAndRest(tokens: List[Token]): (List[Expr], List[Token]) = {
-    extractExprAndRest(tokens) match {
-      case (value: Expr, Rparen() :: rest) => (List(value), Rparen() :: rest)
-      case (value: Expr, DotToken() :: rest) => (List(value), DotToken() :: rest)
-      case (value: Expr, rest) => extractExprsAndRest(rest) match {
-        case (values: List[Expr], rest2) => (value :: values, rest2)
-        case (_, rest3) => throw new Exception("Could not extract exprs and rest from " + tokens)
+    tokens match {
+      case Nil => (Nil, Nil)
+      case _ => extractExprAndRest(tokens) match {
+        case (value: Expr, Rparen() :: rest) => (List(value), Rparen() :: rest)
+        case (value: Expr, DotToken() :: rest) => (List(value), DotToken() :: rest)
+        case (value: Expr, rest) => extractExprsAndRest(rest) match {
+          case (values: List[Expr], rest2) => (value :: values, rest2)
+          case (_, rest3) => throw new Exception("Could not extract exprs and rest from " + tokens)
+        }
       }
     }
   }
@@ -151,6 +154,13 @@ object Parser {
           case (List(VarExpr(name), value), Rparen() :: rest2) => (DefExpr(name, value), rest2)
           case _ => throw new Exception("wrong syntax after define " + tokens)
         }
+
+      case Lparen() :: SymbolToken("begin") :: rest =>
+        extractExprsAndRest(rest) match {
+          case (expr :: Nil, Rparen() :: rest2) => (expr, rest2)
+          case (exprs, Rparen() :: rest2) => (SeqExpr(exprs), rest2)
+          case _ => throw new Exception("missing rparen in begin statement " + tokens)
+        }
       case Lparen() :: rest =>
         extractExprsAndRest(rest) match {
           case (operator :: operands, Rparen() :: rest2) => (AppExpr(operator, operands), rest2)
@@ -161,9 +171,10 @@ object Parser {
   }
 
   def parse(tokens: List[Token]): Expr = {
-    extractExprAndRest(tokens) match {
-      case (x: Expr, Nil) => x
-      case (_, rest) => throw new Exception("Leftover tokens " + rest)
+    extractExprsAndRest(tokens) match {
+      case (expr :: Nil, Nil) => expr
+      case (exprs, Nil) => SeqExpr(exprs)
+      case (_, rest) => throw new Exception("Leftover tokens [" + rest + "] after parsing " + tokens)
     }
   }
 
@@ -320,7 +331,7 @@ object Interpreter {
     this.defined_GE += name -> value
   }
 
-  def debug(s: String) = if(REPL.debug) println(s)
+  def debug(s: String) = if (REPL.debug) println(s)
 
   def eval(expr: Expr, env: String => Result): Result = {
     expr match {
@@ -352,7 +363,7 @@ object Interpreter {
             debug("applying native closure " + oper)
             debug("evaluating args " + args)
             val values = args map (arg => eval(arg, env))
-            debug("the values are "+ values)
+            debug("the values are " + values)
             body(values)
           }
           case x => throw new Exception("Trying to apply non-lambda " + x)
