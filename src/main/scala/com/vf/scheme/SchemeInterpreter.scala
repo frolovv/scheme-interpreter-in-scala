@@ -281,6 +281,7 @@ object Interpreter {
     val expr = Parser.parse(tokens)
 
     val GE = (x: String) => {
+      debug("looking for a " + x + " in a GE")
       x match {
         case "+" => NativeClosure(this.plus)
         case "-" => NativeClosure(this.minus)
@@ -307,6 +308,7 @@ object Interpreter {
   def extend(env: (String) => Result, names: List[String], values: List[Result]): (String) => Result = {
     val map = names.zip(values)
     (name: String) => {
+      debug("lookin for a " + name + " in " + map)
       map.find(x => x._1.equals(name)) match {
         case Some(x) => x._2
         case None => env(name)
@@ -317,6 +319,8 @@ object Interpreter {
   def updateGE(name: String, value: Result): Unit = {
     this.defined_GE += name -> value
   }
+
+  def debug(s: String) = if(REPL.debug) println(s)
 
   def eval(expr: Expr, env: String => Result): Result = {
     expr match {
@@ -337,12 +341,18 @@ object Interpreter {
       case AppExpr(oper, args) => {
         eval(oper, env) match {
           case Closure(names, body, env2) => {
-            val values = args map (arg => eval(arg, env2))
+            debug("applying (lambda(" + names + ") (" + body + ")")
+            debug("evaluating args " + args)
+            val values = args map (arg => eval(arg, env))
+            debug("the values are " + values)
             val newEnv = extend(env2, names, values)
             eval(body, newEnv)
           }
           case NativeClosure(body) => {
+            debug("applying native closure " + oper)
+            debug("evaluating args " + args)
             val values = args map (arg => eval(arg, env))
+            debug("the values are "+ values)
             body(values)
           }
           case x => throw new Exception("Trying to apply non-lambda " + x)
@@ -359,6 +369,7 @@ object Interpreter {
 }
 
 object REPL {
+  var debug = false
 
   def makeList(list: Result, items: List[Result]): String = {
     list match {
@@ -392,6 +403,8 @@ object REPL {
           println("bye bye")
           sys.exit()
         }
+        case "debug-on" => debug = true; print("> ")
+        case "debug-off" => debug = false; print("> ")
         case "" => print("> ")
         case _ => {
           try {
