@@ -346,6 +346,15 @@ object Interpreter {
         updateGE(name, eval(value, env))
         VoidResult()
       }
+
+      case SeqExpr(exprs) => {
+        val rev = exprs.reverse
+        val last = rev.head
+        val rest = rev.tail
+
+        (rest reverse) foreach (expr => eval(expr, env))
+        eval(last, env)
+      }
       case VarExpr(name) => env(name)
       case PairExpr(a, d) => PairResult(eval(a, env), eval(d, env))
       case Lambda(params, body) => Closure(params, body, env)

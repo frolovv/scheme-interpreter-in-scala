@@ -42,6 +42,12 @@ class InterpreterTests {
     ("((lambda(x) ((lambda(y) (+ x y)) 2)) 1)", IntResult(value = 3))
   )
 
+  val SeqSamples = List(
+    ("1 2 3", IntResult(3)),
+    ("(define x 1) x", IntResult(1)),
+    ("(define x (lambda(x) x)) (x 1)", IntResult(1))
+  )
+
   def testSamples(samples: List[(String, Result)]) {
     for ((input, expected) <- samples) {
       val actual = Interpreter.eval(input)
@@ -55,5 +61,6 @@ class InterpreterTests {
     testSamples(ConstSamples)
     testSamples(PrimitiveSamples)
     testSamples(IfSamples)
+    testSamples(SeqSamples)
   }
 }
