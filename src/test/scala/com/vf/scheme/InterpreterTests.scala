@@ -52,6 +52,11 @@ class InterpreterTests {
     ("(let ((x 1) (y 2)) (+ x y))", IntResult(3))
   )
 
+  val LetStarSamples = List(
+    ("(let* ((x 1) (y x)) (+ x y))", IntResult(2)),
+    ("(let* ((x 1) (y 2)) (+ x y))", IntResult(3))
+  )
+
   def testSamples(samples: List[(String, Result)]) {
     for ((input, expected) <- samples) {
       val actual = Interpreter.eval(input)
@@ -67,5 +72,6 @@ class InterpreterTests {
     testSamples(IfSamples)
     testSamples(SeqSamples)
     testSamples(LetSamples)
+    testSamples(LetStarSamples)
   }
 }

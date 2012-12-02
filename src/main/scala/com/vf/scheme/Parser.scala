@@ -65,6 +65,25 @@ object Parser {
             }
           }
         }
+      case Lparen() :: SymbolToken("let*") :: rest =>
+        extractExprAndRest(rest) match {
+          case (AppExpr(head, tail), rest2) => extractExprAndRest(rest2) match {
+            case (body, Rparen() :: rest3) => {
+              val bindings = head :: tail
+              val names = bindings map {
+                case AppExpr(VarExpr(name), _) => name
+              }
+              val values = bindings map {
+                case AppExpr(_, expr :: Nil) => expr
+              }
+
+              val zipped = names zip values
+              (zipped.foldRight(body)((zip: (String, Expr), body: Expr) =>
+                AppExpr(Lambda(List(zip._1), body), List(zip._2))
+              ), rest3)
+            }
+          }
+        }
       // single-quote and symbols and other constants
       case QuoteToken() :: rest => extractExprAndRest(rest) match {
         case (VarExpr(x), rest2) => (SymbolExpr(x), rest2)
