@@ -39,7 +39,8 @@ class InterpreterTests {
 
   val ClosureSamples = List(
     ("((lambda(x) x) 123)", IntResult(value = 123)),
-    ("((lambda(x) ((lambda(y) (+ x y)) 2)) 1)", IntResult(value = 3))
+    ("((lambda(x) ((lambda(y) (+ x y)) 2)) 1)", IntResult(value = 3)),
+    ("((lambda x x) 1 2)", PairResult(IntResult(1), PairResult(IntResult(2), NilResult())))
   )
 
   val SeqSamples = List(

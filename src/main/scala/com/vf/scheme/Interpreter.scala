@@ -58,15 +58,26 @@ object Interpreter {
       }
       case VarExpr(name) => env(name)
       case PairExpr(a, d) => PairResult(eval(a, env), eval(d, env))
-      case LambdaSimple(params, body) => Closure(params, body, env)
+      case LambdaSimple(params, body) => ClosureSimple(params, body, env)
+      case LambdaVar(param, body) => ClosureVar(param, body, env)
       case AppExpr(oper, args) => {
         eval(oper, env) match {
-          case Closure(names, body, env2) => {
+          case ClosureSimple(names, body, env2) => {
             debug("applying (lambda(" + names + ") (" + body + ")")
             debug("evaluating args " + args)
             val values = args map (arg => eval(arg, env))
             debug("the values are " + values)
             val newEnv = extend(env2, names, values)
+            eval(body, newEnv)
+          }
+
+          case ClosureVar(name, body, env2) => {
+            debug("applying (lambda" + name + " (" + body + ")")
+            debug("evaluating args " + args)
+            val values = args map (arg => eval(arg, env))
+            val value = Builtins.scalaListToScheme(values)
+            debug("the values are " + value)
+            val newEnv = extend(env2, List(name), List(value))
             eval(body, newEnv)
           }
           case NativeClosure(body) => {

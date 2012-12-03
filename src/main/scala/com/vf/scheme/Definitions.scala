@@ -18,7 +18,9 @@ case class NilResult() extends Result
 
 case class NativeClosure(body: (List[Result]) => Result) extends Result
 
-case class Closure(params: List[String], body: Expr, env: String => Result) extends Result
+case class ClosureSimple(params: List[String], body: Expr, env: String => Result) extends Result
+
+case class ClosureVar(param : String, body : Expr, env: String => Result) extends Result
 
 sealed abstract class Expr
 
