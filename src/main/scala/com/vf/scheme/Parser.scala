@@ -57,13 +57,17 @@ object Parser {
               val bindings = head :: tail
               val names = bindings map {
                 case AppExpr(VarExpr(name), _) => name
+                case _ => "this_value_does_not_exists"
               }
               val values = bindings map {
                 case AppExpr(_, expr :: Nil) => expr
+                case _ => SymbolExpr("this_value_does_not_exists")
               }
               (AppExpr(LambdaSimple(names, body), values), rest3)
             }
+            case _ => throw new Exception("Error : malformed let statement, couldn't extract body" + tokens)
           }
+          case _ => throw new Exception("Error : malformed let statement, couldn't extract bindings  " + tokens)
         }
       case Lparen() :: SymbolToken("let*") :: rest =>
         extractExprAndRest(rest) match {
@@ -72,9 +76,11 @@ object Parser {
               val bindings = head :: tail
               val names = bindings map {
                 case AppExpr(VarExpr(name), _) => name
+                case _ => "this_value_does_not_exists"
               }
               val values = bindings map {
                 case AppExpr(_, expr :: Nil) => expr
+                case _ => SymbolExpr("this_value_does_not_exists")
               }
 
               val zipped = names zip values
@@ -82,7 +88,9 @@ object Parser {
                 AppExpr(LambdaSimple(List(zip._1), body), List(zip._2))
               ), rest3)
             }
+            case _ => throw new Exception("Error : malformed let* statement, couldn't extract body" + tokens)
           }
+          case _ => throw new Exception("Error : malformed let* statement, couldn't extract bindings " + tokens)
         }
       // single-quote and symbols and other constants
       case QuoteToken() :: rest => extractExprAndRest(rest) match {

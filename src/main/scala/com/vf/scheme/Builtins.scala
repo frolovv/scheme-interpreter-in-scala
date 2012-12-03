@@ -132,6 +132,7 @@ object Builtins {
     args match {
       case NilResult() => Nil
       case PairResult(head, tail) => head :: schemeListToScala(tail)
+      case _ => throw new IllegalArgumentException("Error : expected to receive a valid scheme list, instead received " + args)
     }
   }
 }
