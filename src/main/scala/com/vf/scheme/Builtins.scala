@@ -21,12 +21,12 @@ object Builtins {
     case _ => BoolResult(value = false)
   }
 
-  register("list")(list)
+  register("list")(scalaListToScheme)
 
-  def list(args: List[Result]): Result = {
+  def scalaListToScheme(args: List[Result]): Result = {
     args match {
       case Nil => NilResult()
-      case head :: tail => PairResult(head, list(tail))
+      case head :: tail => PairResult(head, scalaListToScheme(tail))
     }
   }
 
