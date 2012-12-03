@@ -9,25 +9,10 @@ object Interpreter {
 
     val GE = (x: String) => {
       debug("looking for a " + x + " in a GE")
-      x match {
-        case "+" => NativeClosure(Builtins.plus)
-        case "-" => NativeClosure(Builtins.minus)
-        case "/" => NativeClosure(Builtins.div)
-        case "*" => NativeClosure(Builtins.mult)
-        case "min" => NativeClosure(Builtins.min)
-        case "max" => NativeClosure(Builtins.max)
-        case "string-length" => NativeClosure(Builtins.string_length)
-        case "string?" => NativeClosure(Builtins.is_string)
-        case "integer?" => NativeClosure(Builtins.is_integer)
-        case "boolean?" => NativeClosure(Builtins.is_boolean)
-        case "pair?" => NativeClosure(Builtins.is_pair)
-        case "list" => NativeClosure(Builtins.list)
-        case "zero?" => NativeClosure(Builtins.is_zero)
-        case _ => defined_GE(x) match {
-          case result: Result => result
-          case _ => throw new Exception("Error: unbound symbol: " + x)
-        }
-      }
+
+      if (Builtins.GE contains x) Builtins.GE(x)
+      else if (defined_GE contains x) defined_GE(x)
+      else throw new Exception("Error: unbound symbol: " + x)
     }
     eval(expr, GE)
   }

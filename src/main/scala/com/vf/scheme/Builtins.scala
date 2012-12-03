@@ -1,21 +1,27 @@
 package com.vf.scheme
 
+import collection.immutable.HashMap
+
 object Builtins {
-  def is_pair(args: List[Result]) = {
-    args match {
-      case PairResult(a, d) :: Nil => BoolResult(value = true)
-      case Nil => throw new IllegalArgumentException("Error: pair?: wrong number of arguments (expected: 1 got: 0)")
-      case _ => BoolResult(value = false)
-    }
+  var GE = new HashMap[String, NativeClosure]
+
+  def register(name: String)(builtin: (List[Result]) => Result) = {
+    GE += name -> NativeClosure(builtin)
   }
 
-  def is_string(args: List[Result]) = {
-    args match {
-      case StringResult(x) :: Nil => BoolResult(value = true)
-      case Nil => throw new IllegalArgumentException("Error: string?: wrong number of arguments (expected: 1 got: 0)")
-      case _ => BoolResult(value = false)
-    }
+  register("pair?") {
+    case PairResult(a, d) :: Nil => BoolResult(value = true)
+    case Nil => throw new IllegalArgumentException("Error: pair?: wrong number of arguments (expected: 1 got: 0)")
+    case _ => BoolResult(value = false)
   }
+
+  register("string?") {
+    case StringResult(x) :: Nil => BoolResult(value = true)
+    case Nil => throw new IllegalArgumentException("Error: string?: wrong number of arguments (expected: 1 got: 0)")
+    case _ => BoolResult(value = false)
+  }
+
+  register("list")(list)
 
   def list(args: List[Result]): Result = {
     args match {
@@ -24,73 +30,84 @@ object Builtins {
     }
   }
 
-  def is_boolean(args: List[Result]) = {
-    args match {
-      case BoolResult(x) :: Nil => BoolResult(value = true)
-      case Nil => throw new IllegalArgumentException("Error: boolean?: wrong number of arguments (expected: 1 got: 0)")
-      case _ => BoolResult(value = false)
-    }
+  register("car") {
+    case PairResult(a, d) :: Nil => a
+    case x => throw new IllegalArgumentException("\"Error: car: wrong type of arguments (expected: pair got: " + x + ")")
   }
 
-  def is_integer(args: List[Result]) = {
-    args match {
-      case IntResult(x) :: Nil => BoolResult(value = true)
-      case Nil => throw new IllegalArgumentException("Error: integer?: wrong number of arguments (expected: 1 got: 0)")
-      case _ => BoolResult(value = false)
-    }
+  register("cdr") {
+    case PairResult(a, d):: Nil => d
+    case x => throw new IllegalArgumentException("\"Error: cdr: wrong type of arguments (expected: pair got: " + x + ")")
   }
 
-  def string_length(args: List[Result]) = {
-    args match {
-      case StringResult(x) :: Nil => IntResult(x.length)
-      case _ => throw new IllegalArgumentException("Error: string-length: string required, but got " + args)
-    }
+  register("boolean?") {
+    case BoolResult(x) :: Nil => BoolResult(value = true)
+    case Nil => throw new IllegalArgumentException("Error: boolean?: wrong number of arguments (expected: 1 got: 0)")
+    case _ => BoolResult(value = false)
   }
 
-  def min(args: List[Result]) = {
-    val ints = getIntsFrom(args)
-    val res = ints.min
-    IntResult(res)
+  register("integer?") {
+    case IntResult(x) :: Nil => BoolResult(value = true)
+    case Nil => throw new IllegalArgumentException("Error: integer?: wrong number of arguments (expected: 1 got: 0)")
+    case _ => BoolResult(value = false)
   }
 
-  def max(args: List[Result]) = {
-    val ints = getIntsFrom(args)
-    val res = ints.max
-    IntResult(res)
+  register("string-length") {
+    case StringResult(x) :: Nil => IntResult(x.length)
+    case x => throw new IllegalArgumentException("Error: string-length: string required, but got " + x)
   }
 
-  def plus(args: List[Result]) = {
-    val ints = getIntsFrom(args)
-    val res = ints reduce (_ + _)
-    IntResult(res)
+  register("min") {
+    args: List[Result] =>
+      val ints = getIntsFrom(args)
+      val res = ints.min
+      IntResult(res)
   }
 
-  def minus(args: List[Result]) = {
-    val ints = getIntsFrom(args)
-    val res = ints reduce (_ - _)
-    IntResult(res)
+  register("max") {
+    args: List[Result] =>
+      val ints = getIntsFrom(args)
+      val res = ints.max
+      IntResult(res)
   }
 
-  def div(args: List[Result]) = {
-    val ints = getIntsFrom(args)
-    val res = ints reduce (_ / _)
-    IntResult(res)
+  register("+") {
+    args: List[Result] =>
+      val ints = getIntsFrom(args)
+      val res = ints reduce (_ + _)
+      IntResult(res)
   }
 
-  def mult(args: List[Result]) = {
-    val ints = getIntsFrom(args)
-    val res = ints reduce (_ * _)
-    IntResult(res)
+  register("-") {
+    args: List[Result] =>
+      val ints = getIntsFrom(args)
+      val res = ints reduce (_ - _)
+      IntResult(res)
   }
 
-  def is_zero(args: List[Result]) = {
-    args match {
-      case IntResult(0) :: Nil => BoolResult(value = true)
-      case IntResult(x) :: Nil => BoolResult(value = false)
-      case IntResult(x) :: tail => throw new IllegalArgumentException("Error: zero?: wrong number of arguments (expected: 1 got: " + args)
-      case Nil => throw new IllegalArgumentException("Error: zero?: wrong number of arguments (expected: 1 got: 0)")
-      case _ => throw new IllegalArgumentException("Error: zero?: wrong type of arguments (expected: integer got: " + args)
-    }
+
+  register("/") {
+    args: List[Result] =>
+      val ints = getIntsFrom(args)
+      val res = ints reduce (_ / _)
+      IntResult(res)
+  }
+
+
+  register("*") {
+    args: List[Result] =>
+      val ints = getIntsFrom(args)
+      val res = ints reduce (_ * _)
+      IntResult(res)
+  }
+
+
+  register("zero?") {
+    case IntResult(0) :: Nil => BoolResult(value = true)
+    case IntResult(x) :: Nil => BoolResult(value = false)
+    case IntResult(x) :: tail => throw new IllegalArgumentException("Error: zero?: wrong number of arguments (expected: 1 got: " + (IntResult(x) :: tail))
+    case Nil => throw new IllegalArgumentException("Error: zero?: wrong number of arguments (expected: 1 got: 0)")
+    case x => throw new IllegalArgumentException("Error: zero?: wrong type of arguments (expected: integer got: " + x)
   }
 
   def getIntsFrom(args: List[Result]): List[Int] = {
