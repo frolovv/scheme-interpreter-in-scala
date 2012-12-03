@@ -3,10 +3,15 @@ package com.vf.scheme
 import collection.immutable.HashMap
 
 object Builtins {
-  var GE = new HashMap[String, NativeClosure]
+  var GE = new HashMap[String, Result]
 
-  def register(name: String)(builtin: (List[Result]) => Result) = {
+  def register(name: String)(builtin: (List[Result]) => Result) {
     GE += name -> NativeClosure(builtin)
+  }
+
+  def register(name: String, function: String) {
+    val closure = Interpreter.eval(function)
+    GE += name -> closure
   }
 
   register("pair?") {
@@ -21,14 +26,7 @@ object Builtins {
     case _ => BoolResult(value = false)
   }
 
-  register("list")(scalaListToScheme)
-
-  def scalaListToScheme(args: List[Result]): Result = {
-    args match {
-      case Nil => NilResult()
-      case head :: tail => PairResult(head, scalaListToScheme(tail))
-    }
-  }
+  register("list", "(lambda x x)")
 
   register("car") {
     case PairResult(a, d) :: Nil => a
@@ -36,7 +34,7 @@ object Builtins {
   }
 
   register("cdr") {
-    case PairResult(a, d):: Nil => d
+    case PairResult(a, d) :: Nil => d
     case x => throw new IllegalArgumentException("\"Error: cdr: wrong type of arguments (expected: pair got: " + x + ")")
   }
 
@@ -110,6 +108,12 @@ object Builtins {
     case x => throw new IllegalArgumentException("Error: zero?: wrong type of arguments (expected: integer got: " + x)
   }
 
+  // (define with (lambda(s f) (apply f s))
+  //register("with", "(lambda (s f) (apply f s))")
+  register("add1", "(lambda (n) (+ n 1))")
+  register("sub1", "(lambda (n) (- n 1))")
+  register("not", "(lambda(x) (if x #f #t))")
+
   def getIntsFrom(args: List[Result]): List[Int] = {
     args.map(res => res match {
       case IntResult(x) => x
@@ -117,4 +121,17 @@ object Builtins {
     })
   }
 
+  def scalaListToScheme(args: List[Result]): Result = {
+    args match {
+      case Nil => NilResult()
+      case head :: tail => PairResult(head, scalaListToScheme(tail))
+    }
+  }
+
+  def schemeListToScala(args : Result) : List[Result] = {
+    args match {
+      case NilResult() => Nil
+      case PairResult(head, tail) => head :: schemeListToScala(tail)
+    }
+  }
 }
