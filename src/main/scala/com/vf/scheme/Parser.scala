@@ -61,7 +61,7 @@ object Parser {
               val values = bindings map {
                 case AppExpr(_, expr :: Nil) => expr
               }
-              (AppExpr(Lambda(names, body), values), rest3)
+              (AppExpr(LambdaSimple(names, body), values), rest3)
             }
           }
         }
@@ -79,7 +79,7 @@ object Parser {
 
               val zipped = names zip values
               (zipped.foldRight(body)((zip: (String, Expr), body: Expr) =>
-                AppExpr(Lambda(List(zip._1), body), List(zip._2))
+                AppExpr(LambdaSimple(List(zip._1), body), List(zip._2))
               ), rest3)
             }
           }
@@ -96,14 +96,14 @@ object Parser {
           case (List(condition, ift), Rparen() :: rest2) => (IfExpr(condition, ift, VoidExpr()), rest2)
           case _ => throw new Exception("invalid if statement " + tokens)
         }
-      // lambda statement
+      // simple lambda statement
       case Lparen() :: SymbolToken("lambda") :: Lparen() :: rest =>
         extractExprsAndRest(rest) match {
           case (names, Rparen() :: rest2) => extractExprAndRest(rest2) match {
-            case (body, Rparen() :: rest3) => (Lambda(extract(names), body), rest3)
-            case _ => throw new Exception("Lambda's body is missing right paren " + tokens)
+            case (body, Rparen() :: rest3) => (LambdaSimple(extract(names), body), rest3)
+            case _ => throw new Exception("LambdaSimple's body is missing right paren " + tokens)
           }
-          case _ => throw new Exception("Lambda's parameter list is malformed " + tokens)
+          case _ => throw new Exception("LambdaSimple's parameter list is malformed " + tokens)
         }
       // define statement
       case Lparen() :: SymbolToken("define") :: rest =>

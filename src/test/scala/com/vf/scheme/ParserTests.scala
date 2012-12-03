@@ -14,7 +14,7 @@ class ParserTests {
     ("(+ 1 2)", AppExpr(VarExpr("+"), List(NumExpr(1), NumExpr(2)))))
 
   val LambdaSamples = List(
-    ("(lambda (x) x)", Lambda(List("x"), VarExpr("x")))
+    ("(lambda (x) x)", LambdaSimple(List("x"), VarExpr("x")))
   )
 
   val DefSamples = List(

@@ -43,7 +43,7 @@ case class NilExpr() extends Expr
 
 case class SymbolExpr(name : String) extends Expr
 
-case class Lambda(params: List[String], body: Expr) extends Expr
+case class LambdaSimple(params: List[String], body: Expr) extends Expr
 
 case class SeqExpr(exprs : List[Expr]) extends Expr
 

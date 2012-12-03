@@ -58,7 +58,7 @@ object Interpreter {
       }
       case VarExpr(name) => env(name)
       case PairExpr(a, d) => PairResult(eval(a, env), eval(d, env))
-      case Lambda(params, body) => Closure(params, body, env)
+      case LambdaSimple(params, body) => Closure(params, body, env)
       case AppExpr(oper, args) => {
         eval(oper, env) match {
           case Closure(names, body, env2) => {
