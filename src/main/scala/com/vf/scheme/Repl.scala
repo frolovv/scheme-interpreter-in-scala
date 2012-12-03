@@ -21,7 +21,8 @@ object Repl {
       case IntResult(x) => x.toString
       case BoolResult(b) => (if (b) "#t" else "#f")
       case SymbolResult(x) => x
-      case Closure(params, body, env) => "<closure>"
+      case ClosureSimple(params, body, env) => "<closure>"
+      case ClosureVar(param, body, env) => "<closure>"
       case NativeClosure(_) => "<native closure>"
       case VoidResult() => ""
       case PairResult(a, d) => makeList(d, List(a))
