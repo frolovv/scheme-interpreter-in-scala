@@ -101,10 +101,18 @@ object Parser {
         extractExprsAndRest(rest) match {
           case (names, Rparen() :: rest2) => extractExprAndRest(rest2) match {
             case (body, Rparen() :: rest3) => (LambdaSimple(extract(names), body), rest3)
-            case _ => throw new Exception("LambdaSimple's body is missing right paren " + tokens)
+            case _ => throw new Exception("Lambda expression is missing right paren " + tokens)
           }
           case _ => throw new Exception("LambdaSimple's parameter list is malformed " + tokens)
         }
+
+      // variadic lambda statement (lambda x x)
+      case Lparen() :: SymbolToken("lambda") :: SymbolToken(x) :: rest =>
+        extractExprAndRest(rest) match {
+          case (body, Rparen() :: rest2) => (LambdaVar(x, body), rest2)
+          case _ => throw new Exception("Lambda expression is missing right paren" + tokens)
+        }
+
       // define statement
       case Lparen() :: SymbolToken("define") :: rest =>
         extractExprsAndRest(rest) match {
