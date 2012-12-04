@@ -99,6 +99,11 @@ object Builtins {
       IntResult(res)
   }
 
+  register("load") {
+    case StringResult(filename) => Interpreter.eval(new java.io.File(filename))
+    case x => throw new IllegalArgumentException("Error : load : wrong type of arguments (expected string, got " + x)
+  }
+
 
   register("zero?") {
     case IntResult(0) :: Nil => BoolResult(value = true)
@@ -128,7 +133,7 @@ object Builtins {
     }
   }
 
-  def schemeListToScala(args : Result) : List[Result] = {
+  def schemeListToScala(args: Result): List[Result] = {
     args match {
       case NilResult() => Nil
       case PairResult(head, tail) => head :: schemeListToScala(tail)
