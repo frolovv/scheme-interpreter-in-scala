@@ -1,7 +1,22 @@
 package com.vf.scheme
 
+import java.io.{BufferedReader, FileReader, File}
+
 object Interpreter {
   val defined_GE = new scala.collection.mutable.HashMap[String, Result]
+
+  def eval(file: File): Result = {
+    val reader = new BufferedReader(new FileReader(file))
+
+    var line = reader.readLine
+    var result: Result = null
+
+    while (line != null) {
+      result = eval(line)
+      line = reader.readLine
+    }
+    result
+  }
 
   def eval(line: String): Result = {
     val tokens = Scanner.scan(line)
@@ -28,7 +43,7 @@ object Interpreter {
     }
   }
 
-  def updateGE(name: String, value: Result): Unit = {
+  def updateGE(name: String, value: Result) {
     this.defined_GE += name -> value
   }
 
