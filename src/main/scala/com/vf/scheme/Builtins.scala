@@ -14,15 +14,15 @@ object Builtins {
     GE += name -> closure
   }
 
-  register("pair?") {
-    case PairResult(a, d) :: Nil => BoolResult(value = true)
-    case Nil => throw new IllegalArgumentException("Error: pair?: wrong number of arguments (expected: 1 got: 0)")
-    case _ => BoolResult(value = false)
-  }
-
   register("string?") {
     case StringResult(x) :: Nil => BoolResult(value = true)
     case Nil => throw new IllegalArgumentException("Error: string?: wrong number of arguments (expected: 1 got: 0)")
+    case _ => BoolResult(value = false)
+  }
+
+  register("pair?") {
+    case PairResult(a, d) :: Nil => BoolResult(value = true)
+    case Nil => throw new IllegalArgumentException("Error: pair?: wrong number of arguments (expected: 1 got: 0)")
     case _ => BoolResult(value = false)
   }
 
@@ -30,12 +30,22 @@ object Builtins {
 
   register("car") {
     case PairResult(a, d) :: Nil => a
-    case x => throw new IllegalArgumentException("\"Error: car: wrong type of arguments (expected: pair got: " + x + ")")
+    case x => throw new IllegalArgumentException("Error: car: wrong type of arguments (expected: pair got: " + x + ")")
   }
 
   register("cdr") {
     case PairResult(a, d) :: Nil => d
-    case x => throw new IllegalArgumentException("\"Error: cdr: wrong type of arguments (expected: pair got: " + x + ")")
+    case x => throw new IllegalArgumentException("Error: cdr: wrong type of arguments (expected: pair got: " + x + ")")
+  }
+
+  register("cons") {
+    case a :: d :: Nil => PairResult(a,d)
+    case x => throw new IllegalArgumentException("Error: cons: wrong number of arguments (expected: 2, got: " + x + ")")
+  }
+
+  register("null?") {
+    case NilResult() :: Nil => BoolResult(value = true)
+    case _ => BoolResult(value = false)
   }
 
   register("boolean?") {
@@ -135,6 +145,8 @@ object Builtins {
   register("add1", "(lambda (n) (+ n 1))")
   register("sub1", "(lambda (n) (- n 1))")
   register("not", "(lambda(x) (if x #f #t))")
+  register("compose", "(lambda(f g) (lambda(args) (f (apply g args))))")
+  register("curry", "(lambda(f x) (lambda(args) (apply f (cons x args))))")
 
   def getIntsFrom(args: List[Result]): List[Int] = {
     args.map(res => res match {
