@@ -100,7 +100,7 @@ object Builtins {
   }
 
   register("load") {
-    case StringResult(filename) => Interpreter.eval(new java.io.File(filename))
+    case StringResult(filename) :: Nil => Interpreter.eval(new java.io.File(filename))
     case x => throw new IllegalArgumentException("Error : load : wrong type of arguments (expected string, got " + x)
   }
 
@@ -111,6 +111,23 @@ object Builtins {
     case IntResult(x) :: tail => throw new IllegalArgumentException("Error: zero?: wrong number of arguments (expected: 1 got: " + (IntResult(x) :: tail))
     case Nil => throw new IllegalArgumentException("Error: zero?: wrong number of arguments (expected: 1 got: 0)")
     case x => throw new IllegalArgumentException("Error: zero?: wrong type of arguments (expected: integer got: " + x)
+  }
+
+  register ("apply") {
+    case ClosureSimple(names, body, env) :: args :: Nil => {
+      val values = schemeListToScala(args)
+      val env2 = Interpreter.extend(env, names, values)
+      Interpreter.eval(body, env2)
+    }
+    case ClosureVar(name, body, env) :: args :: Nil => {
+      val env2 = Interpreter.extend(env, List(name), List(args))
+      Interpreter.eval(body, env2)
+    }
+    case NativeClosure(func) ::args :: Nil => {
+      val values = schemeListToScala(args)
+      func(values)
+    }
+    case x => throw new IllegalArgumentException("Error : apply : unexpected arguments, expected function and a list of parameters, got " + x)
   }
 
   // (define with (lambda(s f) (apply f s))
