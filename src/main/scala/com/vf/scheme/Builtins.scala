@@ -140,8 +140,7 @@ object Builtins {
     case x => throw new IllegalArgumentException("Error : apply : unexpected arguments, expected function and a list of parameters, got " + x)
   }
 
-  // (define with (lambda(s f) (apply f s))
-  //register("with", "(lambda (s f) (apply f s))")
+  register("with", "(lambda (s f) (apply f s))")
   register("add1", "(lambda (n) (+ n 1))")
   register("sub1", "(lambda (n) (- n 1))")
   register("not", "(lambda(x) (if x #f #t))")
