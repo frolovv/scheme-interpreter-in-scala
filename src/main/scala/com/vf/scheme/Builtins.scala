@@ -171,6 +171,20 @@ object Builtins {
     }
   }
 
+  register("filter") {
+    case oper :: argsScheme :: Nil => {
+      val args = schemeListToScala(argsScheme)
+      val filtered = args filter {
+        e: Result => apply(oper, e) match {
+          case BoolResult(true) => true
+          case _ => false
+        }
+      }
+      scalaListToScheme(filtered)
+    }
+    case _ => throw new IllegalArgumentException("Error : filter : expected operator and list of operands")
+  }
+
   def getIntsFrom(args: List[Result]): List[Int] = {
     args.map(res => res match {
       case IntResult(x) => x
@@ -193,15 +207,15 @@ object Builtins {
     }
   }
 
-  def toScheme(args : List[Any]) : Result = {
+  def toScheme(args: List[Any]): Result = {
     args match {
       case Nil => NilResult()
       case head :: tail => {
         val tailResult = toScheme(tail)
         head match {
-          case x : Int => PairResult(IntResult(x), tailResult)
-          case x : String => PairResult(StringResult(x), tailResult)
-          case x : Boolean => PairResult(BoolResult(x), tailResult)
+          case x: Int => PairResult(IntResult(x), tailResult)
+          case x: String => PairResult(StringResult(x), tailResult)
+          case x: Boolean => PairResult(BoolResult(x), tailResult)
           case None => PairResult(VoidResult(), tailResult)
           case Nil => PairResult(NilResult(), tailResult)
           case _ => throw new UnsupportedOperationException("uknown type for toScheme " + head)

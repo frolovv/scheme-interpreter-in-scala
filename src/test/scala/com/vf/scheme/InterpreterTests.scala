@@ -34,7 +34,8 @@ class InterpreterTests {
     ("(cons 1 2)", PairResult(IntResult(1), IntResult(2))),
     ("(pair? (cons 1 2))", BoolResult(value = true)),
     ("(with '(1 2 3) +)", IntResult(6)),
-    ("(map (lambda(x) (+ x 1)) '(1 2 3))", toScheme(List(2, 3, 4)))
+    ("(map (lambda(x) (+ x 1)) '(1 2 3))", toScheme(List(2, 3, 4))),
+    ("(filter integer? '(1 2 #t))", toScheme(List(1, 2)))
   )
 
   val IfSamples = List(
