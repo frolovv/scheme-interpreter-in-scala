@@ -3,6 +3,7 @@ package com.vf.scheme
 import org.junit.Test
 import org.hamcrest.Matchers
 import org.hamcrest.MatcherAssert.assertThat
+import com.vf.scheme.Builtins.toScheme
 
 
 class InterpreterTests {
@@ -24,7 +25,7 @@ class InterpreterTests {
     ("(max 1 2 3 4 5 6)", IntResult(6)),
     ("(integer? 1)", BoolResult(value = true)),
     ("(boolean? (integer? 123))", BoolResult(value = true)),
-    ("(list 1 2)", PairResult(IntResult(1), PairResult(IntResult(2), NilResult()))),
+    ("(list 1 2)", toScheme(List(1, 2))),
     ("(pair? '(1 . 2))", BoolResult(value = true)),
     ("(pair? (list 1 2))", BoolResult(value = true)),
     ("(zero? 0)", BoolResult(value = true)),
@@ -32,7 +33,8 @@ class InterpreterTests {
     ("(apply + '(1 2 3))", IntResult(6)),
     ("(cons 1 2)", PairResult(IntResult(1), IntResult(2))),
     ("(pair? (cons 1 2))", BoolResult(value = true)),
-    ("(with '(1 2 3) +)", IntResult(6))
+    ("(with '(1 2 3) +)", IntResult(6)),
+    ("(map (lambda(x) (+ x 1)) '(1 2 3))", toScheme(List(2, 3, 4)))
   )
 
   val IfSamples = List(
@@ -44,7 +46,7 @@ class InterpreterTests {
   val ClosureSamples = List(
     ("((lambda(x) x) 123)", IntResult(value = 123)),
     ("((lambda(x) ((lambda(y) (+ x y)) 2)) 1)", IntResult(value = 3)),
-    ("((lambda x x) 1 2)", PairResult(IntResult(1), PairResult(IntResult(2), NilResult())))
+    ("((lambda x x) 1 2)", toScheme(List(1, 2)))
   )
 
   val SeqSamples = List(

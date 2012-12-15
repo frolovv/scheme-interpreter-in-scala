@@ -39,7 +39,7 @@ object Builtins {
   }
 
   register("cons") {
-    case a :: d :: Nil => PairResult(a,d)
+    case a :: d :: Nil => PairResult(a, d)
     case x => throw new IllegalArgumentException("Error: cons: wrong number of arguments (expected: 2, got: " + x + ")")
   }
 
@@ -123,7 +123,7 @@ object Builtins {
     case x => throw new IllegalArgumentException("Error: zero?: wrong type of arguments (expected: integer got: " + x)
   }
 
-  register ("apply") {
+  register("apply") {
     case ClosureSimple(names, body, env) :: args :: Nil => {
       val values = schemeListToScala(args)
       val env2 = Interpreter.extend(env, names, values)
@@ -133,7 +133,7 @@ object Builtins {
       val env2 = Interpreter.extend(env, List(name), List(args))
       Interpreter.eval(body, env2)
     }
-    case NativeClosure(func) ::args :: Nil => {
+    case NativeClosure(func) :: args :: Nil => {
       val values = schemeListToScala(args)
       func(values)
     }
@@ -146,6 +146,30 @@ object Builtins {
   register("not", "(lambda(x) (if x #f #t))")
   register("compose", "(lambda(f g) (lambda(args) (f (apply g args))))")
   register("curry", "(lambda(f x) (lambda(args) (apply f (cons x args))))")
+
+  def apply(oper: Result, arg: Result): Result = {
+    oper match {
+      case NativeClosure(body) => body(List(arg))
+      case ClosureSimple(params, body, env) => {
+        val env2 = Interpreter.extend(env, params, List(arg))
+        Interpreter.eval(body, env2)
+      }
+      case ClosureVar(param, body, env) => {
+        val env2 = Interpreter.extend(env, List(param), List(arg))
+        Interpreter.eval(body, env2)
+      }
+    }
+  }
+
+  register("map") {
+    case oper :: args :: Nil => {
+      val argsList = schemeListToScala(args)
+      val mapped = argsList map {
+        case e: Result => apply(oper, e)
+      }
+      scalaListToScheme(mapped)
+    }
+  }
 
   def getIntsFrom(args: List[Result]): List[Int] = {
     args.map(res => res match {
@@ -166,6 +190,23 @@ object Builtins {
       case NilResult() => Nil
       case PairResult(head, tail) => head :: schemeListToScala(tail)
       case _ => throw new IllegalArgumentException("Error : expected to receive a valid scheme list, instead received " + args)
+    }
+  }
+
+  def toScheme(args : List[Any]) : Result = {
+    args match {
+      case Nil => NilResult()
+      case head :: tail => {
+        val tailResult = toScheme(tail)
+        head match {
+          case x : Int => PairResult(IntResult(x), tailResult)
+          case x : String => PairResult(StringResult(x), tailResult)
+          case x : Boolean => PairResult(BoolResult(x), tailResult)
+          case None => PairResult(VoidResult(), tailResult)
+          case Nil => PairResult(NilResult(), tailResult)
+          case _ => throw new UnsupportedOperationException("uknown type for toScheme " + head)
+        }
+      }
     }
   }
 }
